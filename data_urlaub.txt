@@ -1,0 +1,4 @@
+# The format (for holiday on and off) should be: {'datum': 'urlaub', 'datum': 'normal'}
+# and the format for date and time 'YYYY-MM-DD HH:MM', zB. 2024-11-12 13:41
+# Bsp: {'2025-11-13 10:00': 'urlaub', '2025-11-13 12:00': 'normal'}
+

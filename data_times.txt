@@ -1,0 +1,10 @@
+# Add/Change here the times when the boiler should change his state
+# 1 stands for monday, 2 for tuesday etc.
+# Format-Bsp.:
+'''{1: {"06:30": "normal", "21:40": "reduziert"}, 2: {"06:30": "normal", "21:40": "reduziert"}, 
+    3: {"06:30": "normal", "21:40": "reduziert"}, 4: {"06:30": "normal", "21:40": "reduziert"}, 
+    5: {"06:30": "normal", "22:20": "reduziert"}, 6: {"07:30": "normal", "22:20": "reduziert"}, 
+    7: {"07:30": "normal", "21:40": "reduziert"}}'''
+
+
+
