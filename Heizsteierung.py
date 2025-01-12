@@ -1,7 +1,7 @@
 
 
 """
-Code to control a heating system remotely by a robot, which presses the corresponding buttons on the boiler (Vissmann
+Code to control a heating system remotely by a robot, which presses the corresponding buttons on the boiler (Viessmann
 Vitodens 200-W).
  
 The graphical user interface is created with Kivy, and can be used with mouse or touch. 
