@@ -24,10 +24,10 @@ identical (for example by setting the boiler state manually).
 file has to be corrected and the program restarted.
 - not every "weird" combination of actions is being taken care of by the code, as it was created for use by ourselves,
 and not for a typical end user. Comments in the code refer to those "problems" that I was aware of and didn't handle.
-- to use more than 2 states (reduced or on) or to use the program with another boiler type, the code has to
+- to use more than 2 states (reduced or normal) or to use the program with another boiler type, the code has to
 be adjusted.
 - The methods of the class Heizung (and the commands transmitted to the robot for a specific action), depend heavily on
-the interface of the boiler at hand (on what possibilities/commands the boiler itself provides).
+the interface of the boiler at hand (what possibilities/commands the boiler itself provides).
 """
 
 
