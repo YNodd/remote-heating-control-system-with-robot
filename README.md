@@ -3,28 +3,28 @@
 
 # What it is:  
 Code to control a heating system remotely by a robot, which presses the corresponding buttons on the boiler (Viessmann Vitodens 200-W, with 3.5" black-and-white screen and 4 touch buttons).
-It is controlled by the user from the grapical interface of the program, which is communicating with the robot via LAN (Telnet).
-In my case, the program runs on a Raspberry Pi.
+It is controlled by the user from the grapical interface of the program, which is communicating with the robot via LAN (Telnet).<br>
+In my case, the program runs on a Raspberry Pi.<br>
 The graphical user interface is created with Kivy, and can be used with mouse or touch. 
 
 Some features of the program are: raising or reducing spontaneously, automatic changing times and vacation dates, changing the schedule once to holiday times with a single button press. 
 
-I have written the code of the App with the GUI etc. completey in Python. 
+I have written the code of the App with the GUI etc. completey in Python. <br>
 The code to control the robot is written in C and was done by a friend - the code and the hardware descriptions will be added later, so that our remote control can be reproduced. 
 
 
 # Why we did it:
 I wanted remote control to adjust heating, and more functionalities than the boiler control offers (for example, vacation settings can only be set for entire days without specific start or end times, there's no easy option for a single holiday, and changing the saved time schedules for the whole week needs a lot of button pressing).
 
-Viessmann offers remote control devices, but those don't seem to offer more possibilities than the control on the boiler itself (for example, I wanted to be able to reduce or raise the boiler temperature spontaneously, e.g. if I go to bed earlier than planned).
+Viessmann offers remote control devices, but those don't seem to offer more possibilities than the control on the boiler itself (for example, I wanted to be able to reduce or raise the boiler temperature spontaneously, e.g. if I go to bed earlier than planned).<br>
 The company gives no access to a direct boiler API, only to a cloud solution - but I want to run my heating and its controls locally. 
 
 Furthermore, I was in search of a "real" project to practice programming (in contrast to the exercises of programming tutorials, that normally aren't of any further real use).
 
 
 # How it works:
-To use our program, we have set the boiler permenantly to reduced state (which we have set to ca. 8° C), and we deleted all saved changing times in the boiler. 
-Then we raise or reduce the temperature by chosing (or turning off) the boiler's own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who control the robot that pushes the boiler buttons.
+To use our program, we have set the boiler permenantly to reduced state (which we have set to ca. 8° C), and we deleted all saved changing times in the boiler. <br>
+Then we raise or reduce the temperature by chosing (or turning off) the boiler's own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who control the robot that pushes the boiler buttons.<br>
 (The longer warm feature of the boiler originally is meant to prolongate the heating time in the evening, but on this type of boiler, it also raises to normal state when no times for changing are saved).
 
 **Functionalities:** 
@@ -45,7 +45,7 @@ For use with the same (or a very similar) type of boiler control (e.g. Viessmann
 
 The code can be run in the terminal, or an executable can be packaged with pyinstaller.
 
-The files with the schedules for automatic changes and vacations are created on the first start of the program in the directory where the app was startet (if they don't exist already).
+The files with the schedules for automatic changes and vacations are created on the first start of the program in the directory where the app was startet (if they don't exist already).<br>
 To add or change this schedules, simply update the data in the corresponding file, in the right format (it's the format of a Python dictionary and there is an example on top of the files).
 
 Please consider:
@@ -54,7 +54,7 @@ Please consider:
 - not every "weird" combination of actions is being taken care of by the code, as it was created for use by myself, and not for a typical end user. Comments in the code refer to those "problems" that I was aware of and didn't handle.
 - to use more than 2 states (reduced or normal) or to use the program with another boiler type, the code has to be adjusted.
 
-What worked for me:
+What worked for me:<br>
 I packaged the code with pyinstaller this way: 
 - open the terminal in the folder where the code is saved (or open the terminal anywhere and go there with the cd keyword)
 - type in the terminal:
@@ -70,13 +70,13 @@ pyinstaller my_code_to_package.py
 
 # Used hardware and software
 
-For the main app of the heating control:
-Python version 3.11
-Kivy version 2.2.1
-Raspberry Pi 4 with Debian GNU/Linux 11 (bullseye)
-4.3" touchscreen (DSI)
+For the main app of the heating control:<br>
+Python version 3.11<br>
+Kivy version 2.2.1<br>
+Raspberry Pi 4 with Debian GNU/Linux 11 (bullseye)<br>
+4.3" touchscreen (DSI)<br>
 
-For the robot:
+For the robot:<br>
 coming soon!
 
 
