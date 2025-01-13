@@ -12,9 +12,6 @@ Some features of the program are: raising or reducing spontaneously, automatic c
 I have written the code of the App with the GUI etc. completey in Python. 
 The code to control the robot is written in C and was done by a friend - the code and the hardware descriptions will be added later, so that our remote control can be reproduced. 
 
-bild/video vum roboter, wei en knäppecher dreckt (an ev vierdrun kuerz wei de Fanger op a GUI-knäppchen dreckt (bessi blöd well dGUI op Lu as...)
-Th robot is controlled via a graphical interface on the Raspberry Pi, and presses the corresponding buttons (the move on the start takes longer to reset the screen to the start screen for sure – in case there would another screen be chosen when starting).
-
 
 # Why we did it:
 I wanted remote control to adjust heating, and more functionalities than the boiler control offers (for example, vacation settings can only be set for entire days without specific start or end times, there's no easy option for a single holiday, and changing the saved time schedules for the whole week needs a lot of button pressing).
@@ -30,7 +27,7 @@ To use our program, we have set the boiler permenantly to reduced state (which w
 Then we raise or reduce the temperature by chosing (or turning off) the boiler's own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who control the robot that pushes the boiler buttons.
 (The longer warm feature of the boiler originally is meant to prolongate the heating time in the evening, but on this type of boiler, it also raises to normal state when no times for changing are saved).
 
-** Functionalities: ** 
+**Functionalities:** 
 - raise now
 - reduce now
 - saved schedules for automatic changing the boiler state over the day
