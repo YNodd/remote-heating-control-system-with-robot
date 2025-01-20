@@ -80,7 +80,7 @@ testrobot_ip = "192.168.178.32"  # test-IP (with fake-robot that answers as if t
 myrobot_ip = robot_ip  # TODO: change to robot_ip / testrobot_ip for normal use or for use with fake-robot
 myrobot_port = 23
 
-versionnr = "1.0"
+versionnr = "1.1"
 testerei = False  # test status, doesn't write to logfiles if True (only outputs lots of debugging messages)
 zeiten_testerei = False  # to test time related actions, with custom method that fakes elapsing time
 onlyerrorlog = False  # log errors vs. errors and actions
@@ -167,7 +167,7 @@ class Robot():
 
                 answer = s.recv(1024)
 
-            except TimeoutError:
+            except (TimeoutError, socket.timeout):
                 logging.exception("Timeout-Error!")
                 if testerei == False:
                     errorlogger.exception("Timeout!")
