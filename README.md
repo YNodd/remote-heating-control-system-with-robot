@@ -52,9 +52,15 @@ Please consider:
 - when the program is started, the user has to ensure that the state of the program and the state of the boiler are identical (for example by setting the boiler state manually).
 - if the state of the program is 'none', because there was a problem with loading the data for the changing times, the file has to be corrected and the program restarted.
 - not every "weird" combination of actions is being taken care of by the code, as it was created for use by myself, and not for a typical end user. Comments in the code refer to those "problems" that I was aware of and didn't handle.
-- to use more than 2 states (reduced or normal) or to use the program with another boiler type, the code has to be adjusted.
+- to use more than 2 states (reduced or normal) or to use the program with another boiler type, the code has to be adjusted.<br><br>
 
 What worked for me:<br>
+I created a virtual environment this way:
+- open the terminal and type<br>
+python3 -m venv path/to/venv (e.g. python3 -m venv /home/ynodd/heatingapp)
+- open the terminal in the bin subfolder of venv-folder (or open the terminal anywhere and go there with the cd keyword, e.g. cd /home/ynodd/heatingapp/bin) and install the needed software in the venv by using pip:<br>
+e.g. pip install kivy
+
 I packaged the code with pyinstaller this way: 
 - open the terminal in the folder where the code is saved (or open the terminal anywhere and go there with the cd keyword)
 - type in the terminal:
