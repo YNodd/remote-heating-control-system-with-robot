@@ -3,13 +3,13 @@
 
 # What it is:  
 Code to control a heating system remotely by a robot, which presses the corresponding buttons on the boiler (Viessmann Vitodens 200-W, with 3.5" black-and-white screen and 4 touch buttons).
-It is controlled by the user from the grapical interface of the program, which is communicating with the robot via LAN (Telnet).<br>
+It is controlled by the user from the graphical interface of the program, which is communicating with the robot via LAN (Telnet).<br>
 In my case, the program runs on a Raspberry Pi.<br>
 The graphical user interface is created with Kivy, and can be used with mouse or touch. 
 
 Some features of the program are: raising or reducing spontaneously, automatic changing times and vacation dates, changing the schedule once to holiday times with a single button press. 
 
-I have written the code of the App with the GUI etc. completey in Python. <br>
+I have written the code of the App with the GUI etc. completely in Python. <br>
 The code to control the robot is written in C and was done by a friend - the code and the hardware descriptions will be added later, so that our remote control can be reproduced. 
 
 
@@ -23,8 +23,8 @@ Furthermore, I was in search of a "real" project to practice programming (in con
 
 
 # How it works:
-To use our program, we have set the boiler permenantly to reduced state (which we have set to ca. 8° C), and we deleted all saved changing times in the boiler. <br>
-Then we raise or reduce the temperature by chosing (or turning off) the boiler's own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who control the robot that pushes the boiler buttons.<br>
+To use our program, we have set the boiler permanently to reduced state (which we have set to ca. 8° C), and we deleted all saved changing times in the boiler. <br>
+Then we raise or reduce the temperature by choosing (or turning off) the boiler's own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who control the robot that pushes the boiler buttons.<br>
 (The longer warm feature of the boiler originally is meant to prolongate the heating time in the evening, but on this type of boiler, it also raises to normal state when no times for changing are saved).
 
 **Functionalities:** 
@@ -41,14 +41,15 @@ The schedules for daily changes and vacations are saved in external files and ca
 # If you want to use the code for yourself:
 [This is only the code for the main controlling App - the code and the hardware description for the robot will be coming soon.]
 
-For use with the same (or a very similar) type of boiler control (e.g. Viessmann Vitodens 200-W), the complete setup (main app, roboter hardware and roboter software) can be used as is.
+For use with the same (or a very similar) type of boiler control (e.g. Viessmann Vitodens 200-W), the complete setup (main app, robot hardware and robot software) can be used as is.
 
 The code can be run in the terminal, or an executable can be packaged with pyinstaller.
 
-The files with the schedules for automatic changes and vacations are created on the first start of the program in the directory where the app was startet (if they don't exist already).<br>
-To add or change this schedules, simply update the data in the corresponding file, in the right format (it's the format of a Python dictionary and there is an example on top of the files).
+The files with the schedules for automatic changes and vacations are created on the first start of the program in the directory where the app was started (if they don't exist already).<br>
+To add or change these schedules, simply update the data in the corresponding file, in the right format (it's the format of a Python dictionary and there is an example on top of the files).
 
 Please consider:
+- ensure that the IP-addresses (of the sensors and the computer/Raspberry Pi) are assigned permanently in the network
 - when the program is started, the user has to ensure that the state of the program and the state of the boiler are identical (for example by setting the boiler state manually).
 - if the state of the program is 'none', because there was a problem with loading the data for the changing times, the file has to be corrected and the program restarted.
 - not every "weird" combination of actions is being taken care of by the code, as it was created for use by myself, and not for a typical end user. Comments in the code refer to those "problems" that I was aware of and didn't handle.

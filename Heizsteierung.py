@@ -7,8 +7,8 @@ Vitodens 200-W).
 The graphical user interface is created with Kivy, and can be used with mouse or touch. 
 In our case, a Raspberry Pi acts as a server on which the application runs.
 
-To use the program, we have set our boiler permenantly to reduced state (which we have set to ca. 8° C), and we deleted
-all saved changing times in the boiler. Then we raise or reduce the temperature by chosing (or turning off) the  boiler's
+To use the program, we have set our boiler permanently to reduced state (which we have set to ca. 8° C), and we deleted
+all saved changing times in the boiler. Then we raise or reduce the temperature by choosing (or turning off) the  boiler's
 own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who
 control the robot that pushes the boiler buttons.
 (The longer warm feature of the boiler originally is meant to prolongate the heating time in the evening, but on this
@@ -122,7 +122,7 @@ class Robot():
         able to show the problem in the window/GUI.
         The parameter is a string containing the command for the robot, for example a sequence of numbers that represent
         the buttons of the boiler that the robot should push, separated by spaces (Bsp: "1 4 4 4.").
-        Every coammnd ends with a dot to mark the end of the message."""
+        Every command ends with a dot to mark the end of the message."""
         logging.debug("robot-method send_message activated")
 
         socket_on = False
@@ -185,7 +185,7 @@ class Robot():
                 actionlogger.info(f"'{message_text}' geschéckt")
 
             # compare the robot answer with the original sent text - the answer should be the repetition of the
-            #   command (to make shure the communication worked):
+            #   command (to make sure the communication worked):
             if answer.decode() != message_text:
                 reckmeldung = f"Kommunikatiounsfehler! Message-Text war: {message_text}\nÄntwert/Echo as: {answer.decode()}"
                 logging.debug(reckmeldung)
@@ -212,9 +212,9 @@ class Heizung():
 
     def __init__(self):
         self.myrobot = Robot(myrobot_ip, myrobot_port)
-        self.status = "none"  # possible values: "normal", "reduziert", "urlaub" # (shouldn't be type None, as the value None for a kivy-label could brake the code)
+        self.status = "none"  # possible values: "normal", "reduziert", "urlaub" # (shouldn't be type None, as the value None for a kivy-label could break the code)
         self.longerwarm_on = False  # helper variable to ensure the longerwarm-button cannot be pressed if it already is active
-        self.change_to_urlaub = False  # helper variabel to check whether it's a normal reducing or a holiday-reducing when reduce_now is activated
+        self.change_to_urlaub = False  # helper variable to check whether it's a normal reducing or a holiday-reducing when reduce_now is activated
         self.tomorrowholiday_on = False
         self.newmorningtime = None  # new change-time if the morning data has to be changed because of holiday
 
@@ -241,12 +241,6 @@ class Heizung():
 
         # reading the file with the automatic changing-times for the different weekdays:
         read_times_dict = self.load_timesdata()
-        '''# todo: dat hei as bessi doppelt gemoppelt mat deem wat deen offänkt a wat am load-timesdata ofgefang/retourneiert get!
-        if type(read_times_dict) == dict and len(read_times_dict) > 0:  # has the right format and isn't empty
-            self.change_times = read_times_dict
-        else:
-            self.change_times = copy.deepcopy(default_changetimes)  # load a default dictionary (an empty nested dictionary)
-        logging.debug(f"self.change_times in the Heizung init: {self.change_times}")'''
         if read_times_dict == False:
             self.change_times = copy.deepcopy(default_changetimes)  # load a default dictionary (an empty nested dictionary)
         else: # dictionary in the right format (either "empty" or with data)
@@ -341,7 +335,7 @@ class Heizung():
                     return default_changetimes  # (and not just {}, as it can bring problems later on because of KeyErrors)
         else:  # if the file doesn't exist
             writefile = open(timesfile, "x")  # "x" only creates a new file, if it doesn't already exist (whereas "w" would overwrite an existing file)
-            writefile.write("""# Add/Change here the times when the boiler should change his state\n# 1 stands for monday, 2 for tuesday etc.\n# Format-Bsp.:\n'''{1: {"06:30": "normal", "21:40": "reduziert"}, 2: {"06:30": "normal", "21:40": "reduziert"}, 
+            writefile.write("""# Add/Change here the times when the boiler should change his state\n# 1 stands for Monday, 2 for Tuesday etc.\n# Format-Bsp.:\n'''{1: {"06:30": "normal", "21:40": "reduziert"}, 2: {"06:30": "normal", "21:40": "reduziert"}, 
     3: {"06:30": "normal", "21:40": "reduziert"}, 4: {"06:30": "normal", "21:40": "reduziert"}, 
     5: {"06:30": "normal", "22:20": "reduziert"}, 6: {"07:30": "normal", "22:20": "reduziert"}, 
     7: {"07:30": "normal", "21:40": "reduziert"}}'''""")
@@ -444,7 +438,7 @@ class Heizung():
         self.zeit = datetime.now().strftime('%H:%M')
 
     def refresh_urlaub(self):
-        """Refreshs the attribute urlaub_times, and passes the return value from load_urlaubdata to the GUI-class (where
+        """Refreshes the attribute urlaub_times, and passes the return value from load_urlaubdata to the GUI-class (where
         refresh_urlaub is called when the associated button is pressed) so that it can be shown in the window.
         It returns either False or a dictionary (empty or with data)"""
         urlaub_request = self.load_urlaubdata()  # gets a dict (empty or with data) or False
@@ -456,7 +450,7 @@ class Heizung():
             return urlaub_request
 
     def refresh_changetimes(self):
-        """Refreshs the attributes change_times and changetimes_today.
+        """Refreshes the attributes change_times and changetimes_today.
         Returns either False or a dictionary ("empty" or with data) to the GUI class (where it is called), so that it can be
         shown in the window.
 
@@ -582,7 +576,7 @@ class Heizung():
         if self.status != "urlaub":  # during holiday, these changes have to be blocked
             if self.zeit in self.changetimes_today and self.alreadyrun_times == False:
                 change_to = self.changetimes_today[self.zeit]  # check what state is needed according to the dict
-                #logging.debug("variabel change_to as ugelued gin")
+                #logging.debug("variable change_to as ugelued gin")
                 #logging.debug(f"change_to: {change_to}")
                 self.alreadyrun_times = True # mark that the change runs for the first time, to avoid repetitions
                 if change_to == "reduziert":
@@ -697,7 +691,7 @@ class Heizung():
 
         This means, the heater heats through the night, if it isn't reduced. It would then reduce again the day later
         when a reducing is scheduled in the times-dictionary.
-        It is reset automatically if the status is changed by the mehtod reduce_now to 'reduziert' or 'urlaub'.
+        It is reset automatically if the status is changed by the method reduce_now to 'reduziert' or 'urlaub'.
         When longer-warm is on and you want to lower the temperature again, you can simply press the reduce-button.
 
         Isn't possible when tomorrow-holiday is active."""
@@ -750,15 +744,6 @@ class Heizung():
     def longer_warm_back(self):
         """Sets off the longer-warm. This means, that the normal change-times for the day are loaded again."""
         if self.longerwarm_on == True:
-            '''if self.tomorrowholiday_on == False:  # todo: tomorrow_holiday (ech hun der wuel puer vergiess ze markeiren - nach no tomorrowholiday_on sichen...)  # TODO: DAT KEINT EHC HEI REM WEGHUELEN WANN EEN EN MAT FEIERDAG GUER NET ASCHALTEN KANN...
-                self.changetimes_today = copy.deepcopy(self.change_times[self.weekday])  # resets the changing-times to standard
-                self.longerwarm_on = False
-                return True
-            else: # tomorrowholiday_on is True
-                logging.debug("tomorrow_holiday is active, longer_warm can't be set back")
-                if testerei == False and onlyerrorlog == False:
-                    actionlogger.info("longer_warm kann net ausgemat gin well dFeierdags-Astellung aktiv as")
-                return "muar-Feierdag as aktiv, länger-warm kann net zréckgesat gin!"'''
             self.changetimes_today = copy.deepcopy(self.change_times[self.weekday])  # resets the changing-times to standard
             self.longerwarm_on = False
             return True
@@ -823,7 +808,7 @@ class Heizung():
             return "Näischt gemat"
 
     def test_robot(self):
-        """Method to check/move the robot, with a sequence that does nothing (doens't change the configurations in the
+        """Method to check/move the robot, with a sequence that does nothing (doesn't change the configurations in the
         boiler at hand)"""
         logging.debug("Method test_robot activated")
         if testerei == False and onlyerrorlog == False:
@@ -981,7 +966,7 @@ class KivyGui(App):
                 lboutput.text = f"muar-Feierdag as aktiv - d'Zäiten kennen net agelies gin."
                 logging.debug(lboutput.text)
             else: # it is the right dict/format
-                lboutput.text = f"timesdata as ragelueden gin / Fier haut as: {self.myheizung.changetimes_today}"  # {self.myheizung.change_times[self.myheizung.weekday]}"
+                lboutput.text = f"timesdata as ragelueden gin / Fier haut as: {self.myheizung.changetimes_today}"
                 #logging.debug(f"timesdata loaded. timesdata returns: {response_times}.\n change_times is now: {self.myheizung.change_times}")
                 #if testerei == False and onlyerrorlog == False:
                 #    actionlogger.info(f"timesdata ragelueden. timesdata get zréck: {response_times}.\n change_times as lo: {self.myheizung.change_times}")
@@ -1036,7 +1021,7 @@ class KivyGui(App):
 
         def test_statuschanging(nobutton_assigned):
             """function to change the time arbitrarily to test methods which rely on time (e.g. when the status
-            should change and be displayed in the GUI). The minutes are incremented to mimik a normal time elapsing/changing.
+            should change and be displayed in the GUI). The minutes are incremented to mimic a normal time elapsing/changing.
             The desired starting time has to be set where the function is called (as it has to be outside of the
             function to not set the time to start with every function call).
             (Isn't needed anymore since the implementation of the time data from the files, as now change-times can be
@@ -1071,9 +1056,9 @@ class KivyGui(App):
 
         # BUTTONS AND LABELS:
 
-        # (size_hint = (width-percent, hight-percent))  # size_hint should be used with pos_hint (and not pos) to allow the elements to find their places when the window is resized
+        # (size_hint = (width-percent, height-percent))  # size_hint should be used with pos_hint (and not pos) to allow the elements to find their places when the window is resized
         # (pos = (sideways, bottom-top)  # starts at the bottom left corner with 0,0 (for the top left corner you need e.g. (0, 500))
-        # (pos_hint = )  # postion of the elements by percentage, Bsp: pos_hint={'center_x': .5, 'center_y': .5})
+        # (pos_hint = )  # position of the elements by percentage, Bsp: pos_hint={'center_x': .5, 'center_y': .5})
 
         # clock-Label:
         lbclock = Label(text = str(datetime.now().strftime("%H:%M")), font_size = 20, color = "blue",  size_hint = (0.8, .2), pos_hint={'center_x': .85, 'center_y': .95})
