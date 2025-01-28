@@ -62,8 +62,8 @@ What worked for me:<br>
 I created a virtual environment this way:
 - open the terminal and type<br>
 python3 -m venv path/to/venv (e.g. python3 -m venv /home/ynodd/heatingapp)
-- open the terminal in the bin subfolder of venv-folder (or open the terminal anywhere and go there with the cd keyword, e.g. cd /home/ynodd/heatingapp/bin) and install the needed software in the venv by using pip:<br>
-e.g. pip install kivy
+- install the needed packages in the venv by typing:<br>
+pathtovenv/bin/pip install package_name (e.g. /home/ynodd/heatingapp/bin/pip install kivy)
 
 I packaged the code with pyinstaller this way: 
 - open the terminal in the folder where the code is saved (or open the terminal anywhere and go there with the cd keyword)
