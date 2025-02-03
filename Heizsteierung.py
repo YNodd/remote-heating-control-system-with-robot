@@ -26,10 +26,10 @@ file has to be corrected and the program restarted.
 and not for a typical end user. Comments in the code refer to those "problems" that I was aware of and didn't handle.
 - to use more than 2 states (reduced or normal) or to use the program with another boiler type, the code has to
 be adjusted.
+- the code is written for a boiler with 1 heating circuit ('Heizkreis'). To use more circuits, the code has to been adapted.
 - The methods of the class Heizung (and the commands transmitted to the robot for a specific action), depend heavily on
 the interface of the boiler at hand (what possibilities/commands the boiler itself provides).
 """
-
 
 
 import socket
@@ -80,7 +80,7 @@ testrobot_ip = "192.168.178.32"  # test-IP (with fake-robot that answers as if t
 myrobot_ip = robot_ip  # TODO: change to robot_ip / testrobot_ip for normal use or for use with fake-robot
 myrobot_port = 23
 
-versionnr = "1.1"
+versionnr = "1.3"
 testerei = False  # test status, doesn't write to logfiles if True (only outputs lots of debugging messages)
 zeiten_testerei = False  # to test time related actions, with custom method that fakes elapsing time
 onlyerrorlog = False  # log errors vs. errors and actions
@@ -142,7 +142,7 @@ class Robot():
                 errorlogger.exception("timeout while trying to connect the socket")
             return "timeouterror"
         except OSError:
-            # possible OSErrors (among others): OSError: [Errno 113] No route to host (roboter doesn't answer)
+            # possible OSErrors (among others): OSError: [Errno 113] No route to host (robot doesn't answer)
             #   OSError: [Errno 101] Network is unreachable (the LAN cable is not plugged in / there is no WLAN connection)
             #   ConnectionRefusedError: [Errno 111] Connection refused
             #   TimeoutError: [Errno 110] Connection timed out
@@ -162,6 +162,8 @@ class Robot():
             try:
                 if message_text == "test.":
                     s.settimeout(7)
+                elif message_text == "1 3 3 4 4 4 2 4 4 1 1 2 2 4 4 4 4.":
+                    s.settimeout(18)
                 else:
                     s.settimeout(15)
 
@@ -201,20 +203,19 @@ class Robot():
 
 class Heizung():
     """This class is the heating control system itself.
-    The methods of the class Heizung (and which commands they have to transmit to the roboter for a specific command/result),
+    The methods of the class Heizung (and which commands they have to transmit to the robot for a specific command/result),
     depend heavily on the interface of the boiler at hand - what can be programmed and what is programmed, and the
     inherent logic of how the interface is to be used (means what possibilities/commands it provides).
 
     Here, the boiler itself is set to the reduced state, with no times saved for changing automatically.
-    All the automatic
-    changes are then done in this class, by activating and deactivating the boiler-feature 'länger warm', which raises
-    the temperature to normal."""
+    All the automatic changes are then done in this class, by activating and deactivating the boiler-feature 'länger warm',
+    which raises the temperature to normal.
+    For vacation setting, the boiler is turned off (runs on frost protection) by choosing 'Heizkreis aus' in the boiler control."""
 
     def __init__(self):
         self.myrobot = Robot(myrobot_ip, myrobot_port)
         self.status = "none"  # possible values: "normal", "reduziert", "urlaub" # (shouldn't be type None, as the value None for a kivy-label could break the code)
         self.longerwarm_on = False  # helper variable to ensure the longerwarm-button cannot be pressed if it already is active
-        self.change_to_urlaub = False  # helper variable to check whether it's a normal reducing or a holiday-reducing when reduce_now is activated
         self.tomorrowholiday_on = False
         self.newmorningtime = None  # new change-time if the morning data has to be changed because of holiday
 
@@ -387,7 +388,10 @@ class Heizung():
                             return False
                         # check the correctness of the date-formats:
                         try:
-                            datetime.strptime(singlekey, datetimeformat)
+                            if len(singlekey) == 16:  # ensure date/time are in the correct format (and not for example 2025-1-29 4:30)
+                                datetime.strptime(singlekey, datetimeformat)
+                            else:
+                                raise
                         except:
                             logging.debug("There is a problem with the date format")
                             if testerei == False:
@@ -540,19 +544,12 @@ class Heizung():
             #logging.debug("variable urlaub_changeto has been created")
             #logging.debug(f"change_to: {urlaub_changeto}")
             self.alreadyrun_holiday = True  # mark that the change runs for the first time, to avoid repetitions
-            if urlaub_changeto == "urlaub" and self.status == "normal":  # ensure that the status hasn't been already reset
+            # ensure that the status hasn't been already reset:
+            if (urlaub_changeto == "urlaub" and self.status == "normal") or (urlaub_changeto == "urlaub" and self.status == "reduziert"):
                 if testerei == False and onlyerrorlog == False:
                     actionlogger.info("Automatesch Aktioun (Vakanz aschalten) decidéiert")
-                self.change_to_urlaub = True # this helper variable is needed to be able to handle the action via the reduce-button (so that the please-wait-label appears)
-                return "reduce now"
-            elif urlaub_changeto == "urlaub" and self.status == "reduziert":
-                # when status is already reduced no action has to be taken, only changing the status:
-                self.status = "urlaub"
-                logging.debug(f"status changed to {self.status}")
-                if testerei == False and onlyerrorlog == False:
-                    actionlogger.info("Automatesch Aktioun (vakanz aschalten) decidéiert")
-                    actionlogger.info(f"De status war schon 'reduziert' an as lo: {self.status}")
-                return "was already reduced"
+                response_urlaub_on = self.turn_vacation_on()
+                return response_urlaub_on
             elif urlaub_changeto == "urlaub" and self.status == "none":
                 if testerei == False:
                     errorlogger.error("De status war 'none', wéi urlaub hätt sollen agestallt gin!")
@@ -560,7 +557,8 @@ class Heizung():
             elif urlaub_changeto == "normal" and self.status == "urlaub":  # ensure that the status hasn't been already reset
                 if testerei == False and onlyerrorlog == False:
                     actionlogger.info("Automatesch Aktioun (vakanz ausschalten) decidéiert")
-                return "raise now"
+                response_urlaub_off = self.turn_vacation_off()
+                return response_urlaub_off
             else: # (none of the status values that exist at the moment. Also "none", when changing-times are missing)
                 logging.debug("status was probably 'none', or a new status-value was added without changing the code appropriately - The 'else' was started during check holiday in check_heiz_statusandactions()")
                 if testerei == False:
@@ -600,6 +598,56 @@ class Heizung():
             self.alreadyrun_times = False
 
 
+    def turn_vacation_on(self):
+        """Turns vacation mode on by selecting the boiler mode 'Heizkreis aus' which sets the boiler to a frost protection state.
+        It assumes that there is only one 'Heizkreis' (heating circuit) used.
+        Returns a string to be displayed in the GUI."""
+        logging.debug("method turn_vacation_on activated")
+        if testerei == False and onlyerrorlog == False:
+            actionlogger.info("Heizungsmethod turn_vacation_on agesprong")
+        urlaub_message = "1 3 3 4 4 4 3 4 4."
+        robotaction = self.myrobot.send_message(urlaub_message)
+        logging.debug(f"self.myrobot.send_message(urlaub_message) returned {robotaction}")
+        if testerei == False and onlyerrorlog == False:
+            actionlogger.info(f"De Roboter get zréck: {robotaction}")
+        if robotaction == True:
+            self.status = "urlaub"
+            if testerei == False and onlyerrorlog == False:
+                actionlogger.info(f"Vakanze-status aktivéiert, de status as lo: {self.status}")
+            return "Vakanz ageschalt"
+        else:
+            logging.debug("There has been a problem with the activation of the holiday status")
+            if testerei == False:
+                errorlogger.error(f"Problem mam Roffueren fier d'Vakanz - d'Roboter-Method get zréck: {robotaction}")
+            return "Problem mam Roffueren fier d'Vakanz!"
+
+    def turn_vacation_off(self):
+        """Turns vacation mode off by setting the boiler on again. It sets 'Heizkreis ein' and 'länger warm',
+        assuming that you want to have the boiler on normal temperature after vacation raise (ignoring the automatic time
+        settings at that moment - but automatic changes are re-enabled so that the next change will take place).
+        Returns a string to be displayed in the GUI."""
+        logging.debug("method turn_vacation_off activated")
+        if testerei == False and onlyerrorlog == False:
+            actionlogger.info("Heizungsmethod turn_vacation_off agesprong")
+        urlauboff_message = "1 3 3 4 4 4 2 4 4 1 1 2 2 4 4 4 4."
+        robotaction = self.myrobot.send_message(urlauboff_message)
+        logging.debug(f"self.myrobot.send_message(urlauboff_message) returned {robotaction}")
+        if testerei == False and onlyerrorlog == False:
+            actionlogger.info(f"De Roboter get zréck: {robotaction}")
+        if robotaction == True:
+            self.status = "normal"
+            if testerei == False and onlyerrorlog == False:
+                actionlogger.info(f"'urlaub' ausgeschalt. De Status as lo: {self.status}")
+            logging.debug(f"The status is now: {self.status}")
+            return "Vakanz ausgeschalt"
+        else:
+            logging.debug("There has been a problem with the DEactivation of the holiday status")
+            if testerei == False:
+                errorlogger.error(f"Problem mam Ropfueren no der Vakanz - d'Roboter-Method get zréck: {robotaction}")
+            return f"Problem mam Ropfueren no der Vakanz! D'Roboter-Method get zréck: {robotaction}"
+
+
+
     def reduce_now(self):
         """Reduces the temperature immediately (if the status was normal). For example, before you leave for the day or
         when you go to bed earlier.
@@ -617,32 +665,20 @@ class Heizung():
             if testerei == False and onlyerrorlog == False:
                 actionlogger.info(f"De Roboter get zréck: {robot_action}")
             if robot_action == True:
-                if self.change_to_urlaub == False:  # make a normal reducing
-                    self.status = "reduziert"
-                    if testerei == False and onlyerrorlog == False:
-                        actionlogger.info(f"De status as lo: {self.status}")
-                elif self.change_to_urlaub == True:  # set status to holiday
-                    self.status = "urlaub"
-                    self.change_to_urlaub = False  # reset helper variable for the next time
-                    if testerei == False and onlyerrorlog == False:
-                        actionlogger.info(f"Vakanze-status aktivéiert, de status as lo: {self.status}")
+                self.status = "reduziert"
                 logging.debug(f"The status is now: {self.status}")
+                if testerei == False and onlyerrorlog == False:
+                    actionlogger.info(f"De status as lo: {self.status}")
                 # ensure that "longer-warm" cannot be active when the status was reduced or put to 'urlaub', because it wouldn't make any sense:
                 if self.longerwarm_on == True:
                     self.longerwarm_on = False
-            else:
-                if self.change_to_urlaub == True:
-                    # if the status should have been set to urlaub/holiday, make a specified message that it didn't work:
-                    logging.debug("There has been a problem with the activation of the holiday status")
-                    if testerei == False:
-                        errorlogger.error(f"Problem mam Roffueren fier d'Vakanz - d'Roboter-Method get zréck: {robot_action}")
-                    self.change_to_urlaub = False
             return robot_action
         else:
             logging.debug("The status 'reduziert' was already on, or the status was 'urlaub'")
             if testerei == False and onlyerrorlog == False:
                 actionlogger.info("Näischt gemat - war schon 'reduziert' (oder de status war 'urlaub')")
             return "Näischt gemat"
+
 
     def raise_now(self):
         """raises the temperature if it was reduced, by sending the message to the robot. Works with the mode
@@ -651,31 +687,21 @@ class Heizung():
         logging.debug("method raise_now activated")
         if testerei == False and onlyerrorlog == False:
             actionlogger.info("Heizungsmethod raise_now agesprong")
-        # if status is reduced or status is urlaub and needs to raise to normal, the raise-message is sent to the robot:
-        if (self.status != "normal" and self.status != "urlaub") or \
-                (self.status == "urlaub" and datetime.now().strftime(datetimeformat) in self.urlaub_times):
+        # if status is reduced and needs to raise to normal, the raise-message is sent to the robot:
+        if self.status != "normal" and self.status != "urlaub":
             rop_message = "1 4 4 4 4."
             robot_action = self.myrobot.send_message(rop_message)
             logging.debug(f"self.myrobot.send_message(rop_message) returned {robot_action}")
             if testerei == False and onlyerrorlog == False:
                 actionlogger.info(f"De Roboter get zréck: {robot_action}")
             if robot_action == True:
-                # log holiday-turning-off if it was activated:
-                if self.status == "urlaub":
-                    if testerei == False and onlyerrorlog == False:
-                        actionlogger.info(f"'urlaub' ausgeschalt")
                 self.status = "normal"
                 logging.debug(f"The status is now: {self.status}")
                 if testerei == False and onlyerrorlog == False:
                     actionlogger.info(f"De Status as lo: {self.status}")
-            else:
-                if self.status == "urlaub":
-                    logging.debug("There has been a problem with the DEactivation of the holiday status")
-                    if testerei == False:
-                        errorlogger.error(f"Problem mam Ropfueren no der Vakanz - d'Roboter-Method get zréck: {robot_action}")
             return robot_action
         else:
-            logging.debug("The heater was already raised or 'urlaub'/holiday is on")
+            logging.debug("The boiler was already raised or 'urlaub'/holiday is on")
             if testerei == False and onlyerrorlog == False:
                 actionlogger.info("Näischt gemat - war schon rop (oder 'urlaub' as an)")
             return "Näischt gemat"
@@ -769,7 +795,8 @@ class Heizung():
 
         # if longer_warm is active, there is no evening reducing time in the current times that could be updated:
         if self.longerwarm_on == False:
-            if self.tomorrowholiday_on == False:  # it wasn't already activated
+            # if it wasn't already activated (and there are saved change_times in the file):
+            if self.tomorrowholiday_on == False and len(self.changetimes_list) != 0:
                 # change the evening reducing of the current day to the late reducing time from Saturday:
                 self.changetimes_list = sorted(x for x in self.changetimes_today) # make a sorted list of the dictionary keys (current day)
                 oldeveningtime = self.changetimes_list[-1]  # get the last change-time for today
@@ -990,6 +1017,16 @@ class KivyGui(App):
             if onlyerrorlog == False and testerei == False:
                 actionlogger.info(lboutput.text)
 
+        def test_robocommunication(currentbutton):
+            logging.debug(f"'{currentbutton.text}' pushed")
+            if onlyerrorlog == False and testerei == False:
+                actionlogger.info(f"'{currentbutton.text}' gedréckt")
+            commresponse = self.myheizung.myrobot.send_message("test.")
+            popup_off(currentbutton)
+            lboutput.text = f"Roboter/Kommunikatioun get zréck: {commresponse}"
+            if onlyerrorlog == False and testerei == False:
+                actionlogger.info(lboutput.text)
+
 
         def refresh_kivy_time(nobutton_assigned):
             # refresh the clock of the class Heizung (by calling the own method of the class Heizung):
@@ -1000,9 +1037,10 @@ class KivyGui(App):
 
         def check_kivy_statusandactions(nobutton_assigned):
             """refreshes the indicators of status and longerwarm_on in the GUI.
-            If the Heizung.check_heiz_statusandactions() method returns that a status has to be automatically changed, the
-            correspondent button is triggered here in the KivyGui (it is done this way and not by calling the roboter
-            directly from the class Heizung as the button-trigger implies that the please-wait-label appears in the GUI"""
+            If the Heizung.check_heiz_statusandactions() method returns that a status has to be automatically changed
+            because of time settings, the correspondent button is triggered here in the KivyGui (it is done this way and
+            not by calling the robot directly from the class Heizung as the button-trigger implies that the please-wait-label
+            appears in the GUI)."""
             heizstatus_response = self.myheizung.check_heiz_statusandactions()
             lbstatus.text = f"status: {self.myheizung.status}"
             if self.myheizung.longerwarm_on == False:
@@ -1013,10 +1051,10 @@ class KivyGui(App):
                 btnrof.trigger_action()  # this is like pushing the button btnrof (carried out this way so that the please-wait-label appears)
             elif heizstatus_response == "raise now":
                 btnrop.trigger_action()  # this is like pushing the button btnrop
-            elif heizstatus_response == "was already reduced":
-                lboutput.text = "Vakanz ageschalt (status war 'reduziert')"
             elif heizstatus_response == False:
                 lboutput.text = "PROBLEM BEIM AUTOMATESCHEN EMSCHALTEN vun Zäiten/urlaub! (ev. war de status 'none'?)"
+            elif heizstatus_response != None:  # example: "Vakanz ageschalt" (holiday activated)
+                lboutput.text  = f"Roboter/Kommunikatioun get zréck: {heizstatus_response}"
 
 
         def test_statuschanging(nobutton_assigned):
@@ -1119,9 +1157,14 @@ class KivyGui(App):
         layout.add_widget(btnholidayback)
 
         # button to test the function of the robot:
-        btntestrobot = Button(text = "test robot", color = "red", size_hint = (0.15, 0.08), pos_hint = {"center_x": .10, "center_y": .10})
+        btntestrobot = Button(text = "test robot", color = "red", size_hint = (0.13, 0.08), pos_hint = {"center_x": .10, "center_y": .10})
         btntestrobot.bind(on_press = popup_on, on_release = call_robottest)
         layout.add_widget(btntestrobot)
+
+        # button to test the communication to the robot:
+        btntestcomm = Button(text = "test commun.", color = "red", size_hint = (0.13, 0.08), pos_hint = {"center_x": .24, "center_y": .10})
+        btntestcomm.bind(on_press = popup_on, on_release = test_robocommunication)
+        layout.add_widget(btntestcomm)
 
         # please-wait-label (is added in the moment the label is needed (after pressing a button))
         lbpopup = MyWarnLabel(text = "Please wait ...", font_size = 110, color = "red", size_hint = (1, 1)) # pos_hint={'center_x': 1, 'center_y': 1})
@@ -1151,5 +1194,5 @@ class Interface():
 
 #----------------------
 
-meng_instanz = Interface()  # this instance later calls all the other classes and methods that are needed
+my_instanz = Interface()  # this instance later calls all the other classes and methods that are needed
 

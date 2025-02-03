@@ -28,7 +28,8 @@ Furthermore, I was in search of a "real" project to practice programming (in con
 # How it works:
 To use our program, we have set the boiler permanently to reduced state (which we have set to ca. 8° C), and we deleted all saved changing times in the boiler. <br>
 Then we raise or reduce the temperature by choosing (or turning off) the boiler's own feature "länger warm" (longer warm) - with the buttons in the GUI or automatically with saved changing times, who control the robot that pushes the boiler buttons.<br>
-(The longer warm feature of the boiler originally is meant to prolongate the heating time in the evening, but on this type of boiler, it also raises to normal state when no times for changing are saved).
+(The longer warm feature of the boiler originally is meant to prolongate the heating time in the evening, but on this type of boiler, it also raises to normal state when no times for changing are saved).<br>
+The vacation feature works by turning the boiler off (to frost protection). 
 
 **Functionalities:** 
 - raise now
@@ -56,7 +57,7 @@ Please consider:
 - when the program is started, the user has to ensure that the state of the program and the state of the boiler are identical (for example by setting the boiler state manually).
 - if the state of the program is 'none', because there was a problem with loading the data for the changing times, the file has to be corrected and the program restarted.
 - not every "weird" combination of actions is being taken care of by the code, as it was created for use by myself, and not for a typical end user. Comments in the code refer to those "problems" that I was aware of and didn't handle.
-- to use more than 2 states (reduced or normal) or to use the program with another boiler type, the code has to be adjusted.<br><br>
+- to use more than 2 states (reduced or normal) or to use the program with another boiler type (or the same boiler type but more than 1 heating circuit/'Heizkreis'), the code has to be adjusted.<br><br>
 
 What worked for me:<br>
 I created a virtual environment this way:
