@@ -12,7 +12,7 @@ Some features of the program are: raising or reducing spontaneously, automatic c
 I have written the code of the App with the GUI etc. completely in Python. <br>
 The code to control the robot is written in C and was done by a friend - the code and the hardware descriptions will be added later, so that our remote control can be reproduced. 
 
-<video src="https://github.com/YNodd/remote-heating-control-system-with-robot/blob/main/video%20of%20robot%20in%20action.mp4" width="300" />
+<video src="https://github.com/YNodd/remote-heating-control-system-with-robot/blob/main/video%20of%20robot%20in%20action.mp4" width="300" /></video>
 ![robot pushing the button](video of robot in action.mp4)
 
 The robot is controlled via a graphical interface on the Raspberry Pi, and presses the corresponding buttons (the move on the start takes longer to reset the screen to the start screen for sure – in case there would another screen be chosen when starting).
