@@ -12,9 +12,9 @@ Some features of the program are: raising or reducing spontaneously, automatic c
 I have written the code of the App with the GUI etc. completely in Python. <br>
 The code to control the robot is written in C and was done by a friend - the code and the hardware descriptions will be added later, so that our remote control can be reproduced. 
 
-![robot pushing the button](heizungsroboter.jpg)
+![robot pushing the button](video of robot in action.mp4)
 
-The robot is controlled via a graphical interface on the Raspberry Pi, and presses the corresponding buttons.
+The robot is controlled via a graphical interface on the Raspberry Pi, and presses the corresponding buttons (the move on the start takes longer to reset the screen to the start screen for sure – in case there would another screen be chosen when starting).
 
 # Why we did it:
 I wanted remote control to adjust heating, and more functionalities than the boiler control offers (for example, vacation settings can only be set for entire days without specific start or end times, there's no easy option for a single holiday, and changing the saved time schedules for the whole week needs a lot of button pressing).
